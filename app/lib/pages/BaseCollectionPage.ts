@@ -14,6 +14,14 @@ export abstract class BaseCollectionPage extends BaseDataPage {
         'data-collection-table',
     )
 
+    public readonly dataToolbarActionMenuButton = this.page.getByTestId('data-toolbar-collection-action-menu-button')
+    public readonly dataToolbarActionMenu = this.page.getByTestId('data-toolbar-collection-action-menu')
+    public readonly dataToolbarSearchButton = this.page.getByRole('option', {name: /search/i})
+
+    public readonly dataDialog = this.page.getByTestId('data-dialog')
+    public readonly dataDialogSearch = this.page.getByTestId('data-dialog-search')
+    public readonly dataDialogCreate = this.page.getByTestId('data-dialog-create')
+
     getItemNavigationLink(rowSelector: number | string | RegExp, testId: string) {
         return this.getTableDataRow(rowSelector).getByTestId(testId)
     }
@@ -40,5 +48,20 @@ export abstract class BaseCollectionPage extends BaseDataPage {
         await expect(this.dataCollectionTable).toHaveCount(1)
 
         await expect(this.dataCollectionTable.getByText(/Loading/)).toHaveCount(0)
+    }
+
+    async openDataDialogSearch() {
+        await this.clickActionMenuButton('data-toolbar-menu-search-list-item')
+        await expect(this.dataDialogSearch).toBeVisible()
+    }
+
+    async openDataDialogCreate() {
+        await this.clickActionMenuButton('data-toolbar-menu-create-list-item')
+        await expect(this.dataDialogCreate).toBeVisible()
+    }
+
+    async closeDataDialog() {
+        await this.dataDialogCloseButton.click()
+        await expect(this.dataDialog).not.toBeVisible()
     }
 }

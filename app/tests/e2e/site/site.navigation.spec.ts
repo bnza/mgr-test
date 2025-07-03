@@ -1,10 +1,15 @@
-import {test, expect} from '@playwright/test'
+import {test} from '@playwright/test'
 import {HomePage} from '@lib/pages/HomePage'
 import {NavigationLinksButton} from "@lib/index";
 import {SiteCollectionPage} from '@lib/pages/SiteCollectionPage'
 import {SiteItemPage} from "@lib/pages/SiteItemPage";
+import {loadFixtures} from "@lib/api";
 
-test.describe('Site page', () => {
+test.beforeAll(async () => {
+    loadFixtures()
+})
+
+test.describe('Site page navigation', () => {
     test('Navigation drawer works works as expected', async ({page}) => {
         const homePom = new HomePage(page)
         const collectionPom = new SiteCollectionPage(page)
@@ -20,5 +25,12 @@ test.describe('Site page', () => {
         await itemPom.expectAppDataCardToHaveIdentifier('TO')
         await itemPom.backNavigationButton.click()
         await collectionPom.expectDataTable(true)
+    })
+    test('Filter dialog work as expected', async ({page}) => {
+        const collectionPom = new SiteCollectionPage(page)
+        await collectionPom.open()
+        await collectionPom.expectDataTable(true)
+        await collectionPom.openDataDialogSearch()
+        await collectionPom.dataDialogCloseButton.click()
     })
 })
