@@ -3,9 +3,12 @@ import {isInViewport} from '@lib/index'
 
 export abstract class BasePage {
     public readonly appBarNavIcon = this.page.getByTestId('app-bar-nav-icon')
+    public readonly appDataCard = this.page.getByTestId('data-card').first()
+    public readonly appDataCardToolbar = this.appDataCard.getByTestId('data-card-toolbar').first()
     public readonly appNavigationDrawer = this.page.getByTestId(
         'app-navigation-drawer',
     )
+    public readonly appDataCardTitle = this.appDataCard.getByTestId('data-card-toolbar-main-title')
     public readonly loginButton = this.page.getByTestId('login-button')
 
     protected abstract readonly path: string
@@ -17,6 +20,10 @@ export abstract class BasePage {
 
     async open(path = '') {
         await this.page.goto('#' + (path || this.path))
+    }
+
+    async expectAppDataCardToHaveTitle(title: string | RegExp) {
+        await expect(this.appDataCardTitle).toHaveText(title)
     }
 
     async expectAppMessageToHaveText(text: string | RegExp, count = 1) {
