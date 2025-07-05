@@ -36,6 +36,8 @@ test.describe('Site page navigation', () => {
             await itemPom.expectTextFieldToHaveValue('code', 'NW')
             await itemPom.expectTextFieldToHaveValue('name', 'New Shining Site')
             await itemPom.expectTextFieldToHaveValue('description', 'A new shining site for testing purposes')
+            await itemPom.backNavigationButton.click()
+            await collectionPom.expectDataTable(true)
         })
     })
 })
