@@ -20,9 +20,9 @@ export abstract class BaseDataPage extends BasePage {
         await expect(this.appDataCardToolbarIdentifier).toHaveText(title,)
     }
 
-    async clickActionMenuButton(testid: string) {
+    async clickActionMenuButton(testId: string) {
         await this.dataToolbarActionMenuButton.click()
         await expect(this.dataToolbarActionMenu).toBeVisible()
-        await this.page.getByTestId(testid).click()
+        await this.page.getByTestId(testId).click()
     }
 }
