@@ -41,6 +41,10 @@ export abstract class BaseCollectionPage extends BaseDataPage {
             .filter({has: this.page.locator('td', {hasText: text})})
     }
 
+    async expectTableDataNotToHaveRow(text: string | RegExp) {
+        await expect(this.getTableDataRowByText(text)).toHaveCount(0)
+    }
+
     async expectDataTable(main = true) {
         if (main) {
             await this.expectAppDataCardToHaveResourceLabelAsTitle()
