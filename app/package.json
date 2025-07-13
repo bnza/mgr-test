@@ -9,6 +9,8 @@
     "prettier": "^3.2.5"
   },
   "scripts": {
+    "format": "prettier --write \"**/*.{ts,tsx,js,jsx,vue,css,scss,json,md}\" --ignore-path .prettierignore",
+    "format:check": "prettier --check \"**/*.{ts,tsx,js,jsx,vue,css,scss,json,md}\" --ignore-path .prettierignore",
     "test": "npx playwright test"
   },
   "dependencies": {

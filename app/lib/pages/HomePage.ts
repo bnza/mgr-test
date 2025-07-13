@@ -1,9 +1,9 @@
-import {BasePage} from '@lib/pages/BasePage'
+import { BasePage } from '@lib/pages/BasePage'
 
 export class HomePage extends BasePage {
-    protected readonly path = '/'
+  protected readonly path = '/'
 
-    async openAndNavigateToCollectionByNavigationDrawer(testIds: string[]) {
-        await this.open()
-    }
+  async openAndNavigateToCollectionByNavigationDrawer(testIds: string[]) {
+    await this.open()
+  }
 }
