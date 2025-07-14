@@ -11,12 +11,19 @@ export abstract class BaseDataPage extends BasePage {
   public readonly appDataCardToolbarIdentifier =
     this.appDataCardToolbar.getByTestId('data-card-toolbar-identifier')
 
+  public readonly dataDialog = this.page.getByTestId('data-dialog')
+
   public readonly dataDialogDelete = this.page.getByTestId('data-dialog-delete')
+
+  public readonly dataDialogCreate = this.page.getByTestId('data-dialog-create')
+  public readonly dataDialogCreateShowCreatedItemCheckbox =
+    this.dataDialogCreate.getByTestId('show-created-item-checkbox')
 
   public readonly dataDialogForm = this.page.getByTestId('data-dialog-form')
   public readonly dataDialogCloseButton = this.page.getByTestId(
     'data-dialog-form-close-button',
   )
+
   public readonly dataDialogSubmitButton = this.page.getByTestId(
     'data-dialog-form-submit-button',
   )
@@ -35,12 +42,14 @@ export abstract class BaseDataPage extends BasePage {
     await this.page.getByTestId(testId).click()
   }
 
-  async expectDayaDialogTextFieldToHaveValue(
+  async expectDataDialogTextFieldToHaveValue(
     name: string,
     value: string | RegExp,
   ) {
     await expect(
-      this.dataDialogForm.getByRole('textbox', { name }),
+      this.page.getByRole('dialog').getByRole('textbox', {
+        name: new RegExp(name),
+      }),
     ).toHaveValue(value)
   }
 }

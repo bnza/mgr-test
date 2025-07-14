@@ -1,4 +1,4 @@
-import { expect, Locator, Page } from '@playwright/test'
+import { expect } from '@playwright/test'
 import { NavigationLinksButton } from '@lib/index'
 import { BaseDataPage } from '@lib/pages/BaseDataPage'
 
@@ -48,6 +48,15 @@ export abstract class BaseCollectionPage extends BaseDataPage {
 
   async expectTableDataNotToHaveRow(text: string | RegExp) {
     await expect(this.getTableDataRowByText(text)).toHaveCount(0)
+  }
+
+  async expectTableDataToHaveRowWithText(
+    nthOrText: number | string | RegExp,
+    text: string | RegExp,
+  ) {
+    await expect(this.getTableDataRow(nthOrText)).toHaveText(
+      typeof text === 'string' ? new RegExp(`${text}`) : text,
+    )
   }
 
   async expectDataTable(main = true) {

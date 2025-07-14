@@ -18,7 +18,10 @@ test.describe('Site page navigation', () => {
       await collectionPom.expectDataTable(true)
       await collectionPom.openDataDialogCreate()
       await collectionPom.dataDialogCloseButton.click()
+
+      //CREATE AND REDIRECT TO NEW SITE PAGE
       await collectionPom.openDataDialogCreate()
+      await collectionPom.dataDialogCreateShowCreatedItemCheckbox.click()
       await collectionPom.dataDialogForm
         .getByRole('textbox', { name: 'code' })
         .fill('NW')
@@ -29,6 +32,9 @@ test.describe('Site page navigation', () => {
         .getByRole('textbox', { name: 'description' })
         .fill('A new shining site for testing purposes')
       await collectionPom.dataDialogSubmitButton.click()
+      await collectionPom.expectAppMessageToHaveText(
+        'Resource successfully created',
+      )
       await itemPom.expectAppDataCardToHaveResourceLabelAsTitle()
       await itemPom.expectTextFieldToHaveValue('code', 'NW')
       await itemPom.expectTextFieldToHaveValue('name', 'New Shining Site')
@@ -38,18 +44,62 @@ test.describe('Site page navigation', () => {
       )
       await itemPom.backNavigationButton.click()
       await collectionPom.expectDataTable(true)
+
+      //UPDATE
       await collectionPom
-        .getItemNavigationLink('NW', NavigationLinksButton.Delete)
+        .getItemNavigationLink('NW', NavigationLinksButton.Update)
         .click()
-      await collectionPom.expectDayaDialogTextFieldToHaveValue(
+      await collectionPom.expectDataDialogTextFieldToHaveValue(
         'name',
         'New Shining Site',
       )
+      await collectionPom.dataDialogForm
+        .getByRole('textbox', { name: 'name' })
+        .fill('Newer Shining Site')
+      await collectionPom.dataDialogForm
+        .getByRole('textbox', { name: 'description' })
+        .fill('A modified shining site description')
       await collectionPom.dataDialogSubmitButton.click()
       await collectionPom.expectAppMessageToHaveText(
-        'Resource deleted successfully',
+        'Resource successfully updated',
+      )
+      await collectionPom.expectTableDataToHaveRowWithText(
+        'NW',
+        'Newer Shining Site',
+      )
+      await collectionPom.expectTableDataToHaveRowWithText(
+        'NW',
+        'A modified shining site description',
+      )
+
+      // DELETE
+      await collectionPom
+        .getItemNavigationLink('NW', NavigationLinksButton.Delete)
+        .click()
+      await collectionPom.expectDataDialogTextFieldToHaveValue(
+        'name',
+        'Newer Shining Site',
+      )
+      await collectionPom.dataDialogSubmitButton.click()
+      await collectionPom.expectAppMessageToHaveText(
+        'Resource successfully deleted',
       )
       await collectionPom.expectTableDataNotToHaveRow('NW')
+
+      //CREATE AND NOT REDIRECT TO NEW SITE PAGE
+      await collectionPom.openDataDialogCreate()
+      await collectionPom.dataDialogCreateShowCreatedItemCheckbox.click()
+      await collectionPom.dataDialogForm
+        .getByRole('textbox', { name: 'code' })
+        .fill('NW1')
+      await collectionPom.dataDialogForm
+        .getByRole('textbox', { name: 'name' })
+        .fill('New Shining Site (again)')
+      await collectionPom.dataDialogSubmitButton.click()
+      await collectionPom.expectAppMessageToHaveText(
+        'Resource successfully created',
+      )
+      await collectionPom.expectAppDataCardToHaveResourceLabelAsTitle()
     })
   })
 })
