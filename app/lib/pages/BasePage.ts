@@ -1,4 +1,4 @@
-import { expect, Locator, Page } from '@playwright/test'
+import { expect, Page } from '@playwright/test'
 import { isInViewport } from '@lib/index'
 
 export abstract class BasePage {
@@ -14,6 +14,14 @@ export abstract class BasePage {
     'data-card-toolbar-main-title',
   )
   public readonly loginButton = this.page.getByTestId('login-button')
+  public readonly authUserButton = this.page.getByTestId('auth-user-button')
+  public readonly authUserMenu = this.page.getByTestId('auth-user-menu')
+
+  public readonly openLogoutDialogButton = this.authUserMenu.getByText('Logout')
+  public readonly logoutDialog = this.page.getByTestId('logout-dialog')
+  public readonly logoutButton = this.logoutDialog.getByRole('button', {
+    name: 'Logout',
+  })
 
   protected abstract readonly path: string
 
@@ -25,8 +33,15 @@ export abstract class BasePage {
     await this.page.goto('#' + (path || this.path))
   }
 
-  async expectAppDataCardToHaveTitle(title: string | RegExp) {
-    await expect(this.appDataCardTitle).toHaveText(title)
+  async logout() {
+    await this.authUserButton.click()
+    await this.openLogoutDialogButton.click()
+    await this.logoutButton.click()
+    await this.expectAppMessageToHaveText(/successfully logged out/)
+  }
+
+  async expectAppDataCardToHaveTitle(title: string | RegExp, nth = 0) {
+    await expect(this.appDataCardTitle.nth(nth)).toHaveText(title)
   }
 
   async expectAppMessageToHaveText(text: string | RegExp, count = 1) {

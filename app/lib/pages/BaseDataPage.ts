@@ -28,8 +28,8 @@ export abstract class BaseDataPage extends BasePage {
     'data-dialog-form-submit-button',
   )
 
-  expectAppDataCardToHaveResourceLabelAsTitle() {
-    return this.expectAppDataCardToHaveTitle(this.resourceLabel)
+  expectAppDataCardToHaveResourceLabelAsTitle(nth = 0) {
+    return this.expectAppDataCardToHaveTitle(this.resourceLabel, nth)
   }
 
   async expectAppDataCardToHaveIdentifier(title: string | RegExp) {

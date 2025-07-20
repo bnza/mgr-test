@@ -7,7 +7,7 @@ import { NavigationLinksButton } from '@lib/index'
 test.beforeAll(async () => {
   loadFixtures()
 })
-test.describe('Site page navigation', () => {
+test.describe('Site lifecycle', () => {
   test.describe('Admin user', () => {
     test.use({ storageState: 'playwright/.auth/admin.json' })
 

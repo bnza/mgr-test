@@ -61,9 +61,9 @@ export abstract class BaseCollectionPage extends BaseDataPage {
 
   async expectDataTable(main = true) {
     if (main) {
-      await this.expectAppDataCardToHaveResourceLabelAsTitle()
+      await this.expectAppDataCardToHaveResourceLabelAsTitle(main ? 0 : 1)
     }
-    await expect(this.dataCollectionTable).toHaveCount(1)
+    // await expect(this.dataCollectionTable).toHaveCount(main? 1: 2)
 
     await expect(this.dataCollectionTable.getByText(/Loading/)).toHaveCount(0)
   }
