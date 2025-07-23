@@ -5,6 +5,7 @@ import { LoginPage } from '@lib/pages/LoginPage'
 import { UserCollectionPage } from '@lib/pages/UserCollectionPage'
 import { NavigationLinksButton } from '@lib/index'
 import { UserItemPage } from '@lib/pages/UserItemPage'
+import { AuthTestHelper } from '@lib/utils/AuthTestHelper'
 
 test.describe('User lifecycle', () => {
   test.beforeAll(async () => {
@@ -79,17 +80,11 @@ test.describe('User lifecycle', () => {
       await itemPom.expectAppDataCardToHaveResourceLabelAsTitle()
 
       // USER PASSWORD DIALOG INTERACTION
-      const password = await itemPom.userPasswordDialog.getPlainPassword()
-      const newUserContext = await browser.newContext({
-        storageState: { cookies: [], origins: [] },
-      })
-      const userContextPage = await newUserContext.newPage()
-      const loginPage = new LoginPage(userContextPage)
-      await loginPage.open()
-      await loginPage.login({ email: 'user_new@example.com', password })
-      await loginPage.expectAppMessageToHaveText(/successfully logged in/)
-      await userContextPage.close()
-      await newUserContext.close()
+      const authTestHelper = new AuthTestHelper(browser)
+      await authTestHelper.verifyLoginWithPasswordFromDialog(
+        'user_new@example.com',
+        itemPom.userPasswordDialog,
+      )
 
       await itemPom.userPasswordDialog.expectPlainPasswordToBeCopied()
       await itemPom.userPasswordDialog.expectCloseButtonClosesDialog()
@@ -142,6 +137,39 @@ test.describe('User lifecycle', () => {
         'Resource successfully deleted',
       )
       await collectionPom.expectTableDataNotToHaveRow('user_new@example.com')
+    })
+    test('User reset password', async ({ page, browser }) => {
+      const collectionPom = new UserCollectionPage(page)
+      const itemPom = new UserItemPage(page)
+      await collectionPom.open()
+      await collectionPom.expectDataTable(true)
+
+      // CREATE TEST USER
+      await collectionPom.openDataDialogCreate()
+      await itemPom.dataDialogForm
+        .getByRole('textbox', { name: 'email' })
+        .fill('user_new@example.com')
+      await itemPom.dataDialogForm
+        .getByRole('radio', { name: 'ROLE_ADMIN' })
+        .click()
+      await collectionPom.dataDialogSubmitButton.click()
+      await collectionPom.expectAppMessageToHaveText(
+        'Resource successfully created',
+      )
+      await collectionPom.userPasswordDialog.expectCloseButtonClosesDialog()
+
+      await collectionPom
+        .getTableDataRowByText('user_new@example.com')
+        .getByTestId('reset-password-button')
+        .click()
+      await itemPom.userPasswordDialog.resetButton.click()
+
+      // CHECK RESET PASSWORD LOGIN
+      const authTestHelper = new AuthTestHelper(browser)
+      await authTestHelper.verifyLoginWithPasswordFromDialog(
+        'user_new@example.com',
+        itemPom.userPasswordDialog,
+      )
     })
   })
 })
