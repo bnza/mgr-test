@@ -22,6 +22,9 @@ export abstract class BasePage {
   public readonly logoutButton = this.logoutDialog.getByRole('button', {
     name: 'Logout',
   })
+  public readonly userMeButton = this.authUserMenu.getByTestId(
+    'user-settings-me-link',
+  )
 
   protected abstract readonly path: string
 

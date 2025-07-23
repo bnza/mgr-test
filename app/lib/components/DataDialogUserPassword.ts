@@ -15,7 +15,20 @@ export class DataDialogUserPassword extends LocatorWrapper {
   public readonly closeButton = this.locator.getByRole('button', {
     name: 'Close',
   })
+  public readonly changeButton = this.locator.getByRole('button', {
+    name: 'Change',
+  })
   public readonly plainPassword = this.locator.locator('#plainPassword')
+
+  public readonly oldPassword = this.locator.getByRole('textbox', {
+    name: 'old password',
+  })
+  public readonly newPassword = this.locator.getByRole('textbox', {
+    name: 'new password',
+  })
+  public readonly passwordRepeat = this.locator.getByRole('textbox', {
+    name: 'repeat password',
+  })
 
   constructor(pom: BasePage) {
     super(pom, pom.page.getByTestId('data-dialog-user-password'))
