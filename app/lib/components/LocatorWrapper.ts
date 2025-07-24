@@ -2,9 +2,12 @@ import { Locator } from '@playwright/test'
 import { BasePage } from '@lib/pages/BasePage'
 
 export abstract class LocatorWrapper {
+  public getByText: (text: string) => Locator
+  public getByRole: (role: string, options?: any) => Locator
+
   protected constructor(
     public readonly pom: BasePage,
-    protected readonly locator: Locator,
+    public readonly locator: Locator,
   ) {
     return new Proxy(this, {
       get(target, prop) {

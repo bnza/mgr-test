@@ -1,4 +1,4 @@
-import { test, expect } from '@playwright/test'
+import { test, expect, Page } from '@playwright/test'
 import { HomePage } from '@lib/pages/HomePage'
 import { credentials, loadFixtures } from '@lib/api'
 import { LoginPage } from '@lib/pages/LoginPage'
@@ -6,7 +6,23 @@ import { UserCollectionPage } from '@lib/pages/UserCollectionPage'
 import { NavigationLinksButton } from '@lib/index'
 import { UserItemPage } from '@lib/pages/UserItemPage'
 import { AuthTestHelper } from '@lib/utils/AuthTestHelper'
+import { SiteUserPrivilegeCollectionPage } from '@lib/pages/SiteUserPrivilegeCollectionPage'
 
+const navigateFromCollection = async (page: Page, id: string | RegExp) => {
+  const collectionPom = new UserCollectionPage(page)
+  const itemPom = new UserItemPage(page)
+  await collectionPom.open()
+  await collectionPom.expectDataTable(true)
+  await collectionPom
+    .getItemNavigationLink(id, NavigationLinksButton.Read)
+    .click()
+  await itemPom.expectAppDataCardToHaveResourceLabelAsTitle()
+  await itemPom.expectAppDataCardToHaveIdentifier(id)
+  return {
+    collectionPom,
+    itemPom,
+  }
+}
 test.describe('User lifecycle', () => {
   test.beforeAll(async () => {
     loadFixtures()
@@ -48,18 +64,10 @@ test.describe('User lifecycle', () => {
     test.use({ storageState: 'playwright/.auth/admin.json' })
     test('User lifecycle', async ({ page, browser }) => {
       // NAVIGATION TO/FROM ITEM
-      const collectionPom = new UserCollectionPage(page)
-      const itemPom = new UserItemPage(page)
-      await collectionPom.open()
-      await collectionPom.expectDataTable(true)
-      await collectionPom
-        .getItemNavigationLink(
-          'user_geo@example.com',
-          NavigationLinksButton.Read,
-        )
-        .click()
-      await itemPom.expectAppDataCardToHaveResourceLabelAsTitle()
-      await itemPom.expectAppDataCardToHaveIdentifier('user_geo@example.com')
+      const { collectionPom, itemPom } = await navigateFromCollection(
+        page,
+        'user_geo@example.com',
+      )
       await itemPom.backNavigationButton.click()
       await collectionPom.expectDataTable(true)
 
@@ -170,6 +178,49 @@ test.describe('User lifecycle', () => {
         'user_new@example.com',
         itemPom.userPasswordDialog,
       )
+    })
+    test('Site/User privileges management', async ({ page }) => {
+      await navigateFromCollection(page, 'user_geo@example.com')
+      const pom = new SiteUserPrivilegeCollectionPage(page, false)
+      await pom.expectDataTable(false)
+      await pom.expectTableTotalItems(0)
+      await pom.clickActionMenuButton('data-toolbar-menu-create-list-item')
+      await expect(pom.privilegesDialog.locator).toBeVisible()
+      await pom.privilegesDialog.userInput.expectToBeDisabled()
+      await pom.privilegesDialog.siteInput.fill('Toz')
+      await page.getByRole('option', { name: 'Tozar' }).click()
+      await pom.privilegesDialog.privilegeInput.click()
+      await pom.privilegesDialog.submitButton.click()
+      await pom.expectAppMessageToHaveText('Resource successfully created')
+      await pom.expectTableTotalItems(1)
+      await pom.clickActionMenuButton('data-toolbar-menu-create-list-item')
+      await pom.privilegesDialog.siteInput.fill('ni')
+      await page.getByRole('option', { name: 'Nivar' }).click()
+      await pom.privilegesDialog.submitButton.click()
+      await pom.expectAppMessageToHaveText('Resource successfully created')
+      await pom.expectTableTotalItems(2)
+
+      // AUTH-BUTTON TOOLTIP
+      await pom.expectAuthUserButtonToHavePrivilege(/NI/, 'ROLE_SITE_USER')
+      await pom.expectAuthUserButtonToHavePrivilege(/TO/, 'ROLE_SITE_EDITOR')
+
+      // UPDATE PRIVILEGE
+
+      await pom.getRowAuthUserButton(/NI/).click()
+      await expect(pom.dataDialogUpdate).toHaveText(/EDITOR/)
+      await pom.dataDialogSubmitButton.click()
+      await pom.expectAppMessageToHaveText('Resource successfully updated')
+
+      await pom.expectAuthUserButtonToHavePrivilege(/NI/, 'ROLE_SITE_EDITOR')
+
+      //DELETE
+      await pom
+        .getItemNavigationLink(/TO/, NavigationLinksButton.Delete)
+        .click()
+      await pom.expectDataDialogTextFieldToHaveValue('site site', 'Tozar')
+      await pom.dataDialogSubmitButton.click()
+      await pom.expectAppMessageToHaveText('Resource successfully deleted')
+      await pom.expectTableTotalItems(1)
     })
   })
 })

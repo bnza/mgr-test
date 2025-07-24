@@ -1,18 +1,14 @@
-import { expect, Page } from '@playwright/test'
+import { expect, Locator, Page } from '@playwright/test'
 import { isInViewport } from '@lib/index'
 
 export abstract class BasePage {
   public readonly appBarNavIcon = this.page.getByTestId('app-bar-nav-icon')
-  public readonly appDataCard = this.page.getByTestId('data-card').first()
-  public readonly appDataCardToolbar = this.appDataCard
-    .getByTestId('data-card-toolbar')
-    .first()
+  public readonly appDataCard: Locator
+  public readonly appDataCardToolbar: Locator
   public readonly appNavigationDrawer = this.page.getByTestId(
     'app-navigation-drawer',
   )
-  public readonly appDataCardTitle = this.appDataCard.getByTestId(
-    'data-card-toolbar-main-title',
-  )
+  public readonly appDataCardTitle: Locator
   public readonly loginButton = this.page.getByTestId('login-button')
   public readonly authUserButton = this.page.getByTestId('auth-user-button')
   public readonly authUserMenu = this.page.getByTestId('auth-user-menu')
@@ -28,7 +24,18 @@ export abstract class BasePage {
 
   protected abstract readonly path: string
 
-  constructor(public readonly page: Page) {}
+  constructor(
+    public readonly page: Page,
+    main = true,
+  ) {
+    this.appDataCard = this.page.getByTestId('data-card').nth(main ? 0 : 1)
+    this.appDataCardToolbar = this.appDataCard
+      .getByTestId('data-card-toolbar')
+      .first()
+    this.appDataCardTitle = this.appDataCard.getByTestId(
+      'data-card-toolbar-main-title',
+    )
+  }
 
   public readonly appMessage = this.page.getByTestId('app-message')
 
@@ -62,5 +69,9 @@ export abstract class BasePage {
     for (const testId of listItemsTestIds) {
       await this.appNavigationDrawer.getByTestId(testId).click()
     }
+  }
+
+  async expectInnerInputToBeDisabled(locator: Locator) {
+    await expect(locator.locator('input')).toBeDisabled()
   }
 }

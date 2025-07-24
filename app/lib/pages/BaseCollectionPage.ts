@@ -82,4 +82,10 @@ export abstract class BaseCollectionPage extends BaseDataPage {
     await this.dataDialogCloseButton.click()
     await expect(this.dataDialog).not.toBeVisible()
   }
+
+  async expectTableTotalItems(number: number) {
+    await expect(this.dataCollectionTable).toHaveText(
+      new RegExp(`\\d+\\sof\\s${number}$`),
+    )
+  }
 }

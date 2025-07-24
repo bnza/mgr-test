@@ -19,6 +19,8 @@ export abstract class BaseDataPage extends BasePage {
   public readonly dataDialogCreateShowCreatedItemCheckbox =
     this.dataDialogCreate.getByTestId('show-created-item-checkbox')
 
+  public readonly dataDialogUpdate = this.page.getByTestId('data-dialog-update')
+
   public readonly dataDialogForm = this.page.getByTestId('data-dialog-form')
   public readonly dataDialogCloseButton = this.page.getByTestId(
     'data-dialog-form-close-button',
