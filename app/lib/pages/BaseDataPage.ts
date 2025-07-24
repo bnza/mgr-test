@@ -39,6 +39,7 @@ export abstract class BaseDataPage extends BasePage {
   async clickActionMenuButton(testId: string) {
     await this.dataToolbarActionMenuButton.click()
     await expect(this.dataToolbarActionMenu).toBeVisible()
+    await this.page.waitForTimeout(200)
     await this.page.getByTestId(testId).click()
   }
 
