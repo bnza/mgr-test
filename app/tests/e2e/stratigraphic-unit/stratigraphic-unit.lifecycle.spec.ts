@@ -4,7 +4,7 @@ import { loadFixtures } from '@lib/api'
 import { StratigraphicUnitItemPage } from '@lib/pages/StratigraphicUnitItemPage'
 import { NavigationLinksButton } from '@lib/index'
 
-test.beforeAll(async () => {
+test.beforeEach(async () => {
   loadFixtures()
 })
 

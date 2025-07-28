@@ -4,7 +4,7 @@ import { loadFixtures } from '@lib/api'
 import { SiteItemPage } from '@lib/pages/SiteItemPage'
 import { NavigationLinksButton } from '@lib/index'
 
-test.beforeAll(async () => {
+test.beforeEach(async () => {
   loadFixtures()
 })
 test.describe('Site lifecycle', () => {

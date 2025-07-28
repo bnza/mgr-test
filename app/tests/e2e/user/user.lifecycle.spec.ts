@@ -24,7 +24,7 @@ const navigateFromCollection = async (page: Page, id: string | RegExp) => {
   }
 }
 test.describe('User lifecycle', () => {
-  test.beforeAll(async () => {
+  test.beforeEach(async () => {
     loadFixtures()
   })
 
