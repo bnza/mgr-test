@@ -1,4 +1,4 @@
-import { test } from '@playwright/test'
+import { expect, test } from '@playwright/test'
 import { SiteCollectionPage } from '@lib/pages/SiteCollectionPage'
 import { loadFixtures } from '@lib/api'
 import { SiteItemPage } from '@lib/pages/SiteItemPage'
@@ -11,7 +11,7 @@ test.describe('Site lifecycle', () => {
   test.describe('Admin user', () => {
     test.use({ storageState: 'playwright/.auth/admin.json' })
 
-    test('Create dialog work as expected', async ({ page }) => {
+    test('Basic site lifecycle works as expected', async ({ page }) => {
       const collectionPom = new SiteCollectionPage(page)
       const itemPom = new SiteItemPage(page)
       await collectionPom.open()
@@ -100,6 +100,59 @@ test.describe('Site lifecycle', () => {
         'Resource successfully created',
       )
       await collectionPom.expectAppDataCardToHaveResourceLabelAsTitle()
+    })
+    test('Site chronology works as expected', async ({ page }) => {
+      const collectionPom = new SiteCollectionPage(page)
+      const itemPom = new SiteItemPage(page)
+      await collectionPom.open()
+      await collectionPom.expectDataTable(true)
+      //CREATE AND REDIRECT TO NEW SITE PAGE
+      await collectionPom.openDataDialogCreate()
+      await collectionPom.dataDialogCreateShowCreatedItemCheckbox.click()
+      await collectionPom.dataDialogForm
+        .getByRole('textbox', { name: 'code' })
+        .fill('NW')
+      await collectionPom.dataDialogForm
+        .getByRole('textbox', { name: 'name' })
+        .fill('New Shining Site')
+      await collectionPom.dataDialogForm
+        .getByRole('textbox', { name: 'description' })
+        .fill('A new shining site for testing purposes')
+      await collectionPom.dataDialogForm.getByRole('combobox').first().click()
+      await page.getByRole('option', { name: 'taifa' }).click()
+      await page.getByRole('option', { name: 'feudal' }).click()
+      await page.keyboard.press('Tab')
+      await collectionPom.dataDialogSubmitButton.click()
+      await collectionPom.expectAppMessageToHaveText(
+        'Resource successfully created',
+      )
+      await itemPom.expectAppDataCardToHaveResourceLabelAsTitle()
+      await page.getByTestId('chronology-panel').click()
+      await expect(page.getByTestId('cultural-contexts-selection')).toHaveText(
+        /(?=.*feudal)(?=.*taifa)/,
+      )
+      await itemPom.backNavigationButton.click()
+      await collectionPom.expectDataTable(true)
+
+      //UPDATE
+      await collectionPom
+        .getItemNavigationLink('NW', NavigationLinksButton.Update)
+        .click()
+      await collectionPom.dataDialogForm.getByRole('combobox').first().click()
+      await page.getByRole('option', { name: 'taifa' }).click() //uncheck
+      await page.getByRole('option', { name: 'emirate' }).click()
+      await page.getByRole('option', { name: 'caliphate' }).click()
+      await page.keyboard.press('Tab')
+      await collectionPom.dataDialogSubmitButton.click()
+      await collectionPom.expectAppMessageToHaveText(
+        'Resource successfully updated',
+      )
+      await collectionPom
+        .getItemNavigationLink('NW', NavigationLinksButton.Read)
+        .click()
+      await expect(page.getByTestId('cultural-contexts-selection')).toHaveText(
+        /(?=.*feudal)(?=.*emirate)(?=.*caliphate)/,
+      )
     })
   })
 })
