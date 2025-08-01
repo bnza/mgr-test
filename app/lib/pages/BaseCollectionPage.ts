@@ -1,6 +1,7 @@
 import { expect } from '@playwright/test'
 import { NavigationLinksButton } from '@lib/index'
 import { BaseDataPage } from '@lib/pages/BaseDataPage'
+import { DataDialogSearch } from '@lib/components/DataDialogSearch'
 
 const navigationItemLinkStatusIndex = {
   [NavigationLinksButton.Read]: 0,
@@ -24,7 +25,7 @@ export abstract class BaseCollectionPage extends BaseDataPage {
   })
 
   public readonly dataDialog = this.page.getByTestId('data-dialog')
-  public readonly dataDialogSearch = this.page.getByTestId('data-dialog-search')
+  public readonly dataDialogSearch = new DataDialogSearch(this)
   public readonly dataDialogCreate = this.page.getByTestId('data-dialog-create')
 
   getItemNavigationLink(rowSelector: number | string | RegExp, testId: string) {
@@ -70,7 +71,7 @@ export abstract class BaseCollectionPage extends BaseDataPage {
 
   async openDataDialogSearch() {
     await this.clickActionMenuButton('data-toolbar-menu-search-list-item')
-    await expect(this.dataDialogSearch).toBeVisible()
+    await expect(this.dataDialogSearch.locator).toBeVisible()
   }
 
   async openDataDialogCreate() {
@@ -133,37 +134,41 @@ export abstract class BaseCollectionPage extends BaseDataPage {
     // When sort criteria is falsy url shouldn't include the property in the query
     expect(orderPropertyFound).toBe(Boolean(sortCriteria))
   }
-  
+
   /**
    * Verifies that clicking a sortable table header changes the table content.
-   * 
+   *
    * This method captures the current table content, clicks the header,
    * and then verifies that the table content has changed.
-   * 
+   *
    * Note: This method doesn't verify if the order is correct since sorting is done server-side.
    * It only checks that the table's content has changed after clicking the header.
-   * 
+   *
    * @param headerName - The visible text of the table header to click
    */
-  async expectTableContentChangesAfterSortableHeaderClick(
-    headerName: string,
-  ) {
+  async expectTableContentChangesAfterSortableHeaderClick(headerName: string) {
     // Get all table rows before clicking the header
-    const beforeContent = await this.dataCollectionTable.getByRole('row').allTextContents();
-    
+    const beforeContent = await this.dataCollectionTable
+      .getByRole('row')
+      .allTextContents()
+
     // Click the header to trigger sorting
     await this.dataCollectionTable
       .getByRole('cell', { name: headerName, exact: false })
-      .click();
-      
+      .click()
+
     // Wait for the table to update
-    await this.page.waitForTimeout(500);
-    
+    await this.page.waitForTimeout(500)
+
     // Get all table rows after clicking the header
-    const afterContent = await this.dataCollectionTable.getByRole('row').allTextContents();
-    
+    const afterContent = await this.dataCollectionTable
+      .getByRole('row')
+      .allTextContents()
+
     // Check if the content has changed
     // We're comparing the stringified versions to detect any changes in order
-    expect(JSON.stringify(beforeContent)).not.toEqual(JSON.stringify(afterContent));
+    expect(JSON.stringify(beforeContent)).not.toEqual(
+      JSON.stringify(afterContent),
+    )
   }
 }

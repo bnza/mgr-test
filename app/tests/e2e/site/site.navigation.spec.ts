@@ -53,6 +53,26 @@ test.describe('Site page navigation', () => {
     await collectionPom.open()
     await collectionPom.expectDataTable(true)
     await collectionPom.openDataDialogSearch()
-    await collectionPom.dataDialogCloseButton.click()
+    await collectionPom.dataDialogSearch.expectFilterListItemToHaveCount(0)
+    await collectionPom.dataDialogSearch.openAddFilterDialog()
+    await collectionPom.dataDialogSearch.searchDialogFilter.clickPropertySelectOption(
+      'code',
+    )
+    await collectionPom.dataDialogSearch.searchDialogFilter.clickOperatorSelectOption(
+      'equals',
+    )
+    await collectionPom.dataDialogSearch.searchDialogFilter
+      .getByRole('textbox', { name: 'value' })
+      .fill('TO')
+    await collectionPom.dataDialogSearch.searchDialogFilter.submitButton.click()
+    await collectionPom.dataDialogSearch.expectFilterListItemToHaveCount(1)
+    await collectionPom.dataDialogSearch.submitButton.click()
+    await collectionPom.expectTableTotalItems(1)
+    await collectionPom.openDataDialogSearch()
+    await collectionPom.expectTableTotalItems(1)
+    await collectionPom.dataDialogSearch.clearButton.click()
+    await collectionPom.dataDialogSearch.expectFilterListItemToHaveCount(0)
+    await collectionPom.dataDialogSearch.submit()
+    await collectionPom.expectTableTotalItems(7)
   })
 })

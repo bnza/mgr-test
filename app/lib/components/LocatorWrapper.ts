@@ -3,12 +3,16 @@ import { BasePage } from '@lib/pages/BasePage'
 
 export abstract class LocatorWrapper {
   public getByText: (text: string) => Locator
-  public getByRole: (role: string, options?: any) => Locator
+  public getByRole: Locator['getByRole']
 
   protected constructor(
     public readonly pom: BasePage,
     public readonly locator: Locator,
   ) {
+    // Bind the methods to the locator
+    this.getByText = this.locator.getByText.bind(this.locator)
+    this.getByRole = this.locator.getByRole.bind(this.locator)
+
     return new Proxy(this, {
       get(target, prop) {
         // If the property exists in our class, use it
