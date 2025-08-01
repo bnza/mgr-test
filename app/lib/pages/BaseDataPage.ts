@@ -5,6 +5,7 @@ export abstract class BaseDataPage extends BasePage {
   public abstract readonly resourceLabel: string | RegExp
   public abstract readonly dataToolbarActionMenuButton: Locator
   public abstract readonly dataToolbarActionMenu: Locator
+  protected abstract readonly url: string
   public readonly backNavigationButton = this.appDataCardToolbar.getByTestId(
     'navigation-back-button',
   )

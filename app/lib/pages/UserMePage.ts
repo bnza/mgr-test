@@ -4,6 +4,7 @@ import { DataDialogUserPassword } from '@lib/components/DataDialogUserPassword'
 export class UserMePage extends BaseItemPage {
   public readonly resourceLabel = '*Current user email*'
   protected readonly path = '/settings/me'
+  protected readonly url = '/api/users/me'
 
   public readonly userPasswordDialog = new DataDialogUserPassword(this)
 

@@ -28,7 +28,27 @@ test.describe('Site page navigation', () => {
     await itemPom.backNavigationButton.click()
     await collectionPom.expectDataTable(true)
   })
-  test('Filter dialog work as expected', async ({ page }) => {
+  test('Table pagination work as expected', async ({ page }) => {
+    const collectionPom = new SiteCollectionPage(page)
+    await collectionPom.open()
+    await collectionPom.expectDataTable(true)
+
+    // First click should change the table content (ascending order)
+    await collectionPom.expectTableContentChangesAfterSortableHeaderClick(
+      'code',
+    )
+
+    // Second click should change the table content again (descending order)
+    await collectionPom.expectTableContentChangesAfterSortableHeaderClick(
+      'code',
+    )
+
+    // Third click should change the table content again (no sorting)
+    await collectionPom.expectTableContentChangesAfterSortableHeaderClick(
+      'code',
+    )
+  })
+  test('Search dialog work as expected', async ({ page }) => {
     const collectionPom = new SiteCollectionPage(page)
     await collectionPom.open()
     await collectionPom.expectDataTable(true)

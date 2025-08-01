@@ -88,4 +88,82 @@ export abstract class BaseCollectionPage extends BaseDataPage {
       new RegExp(`\\d+\\sof\\s${number}$`),
     )
   }
+
+  /**
+   * Verifies that clicking a sortable table header triggers a GET request with the expected sort parameters.
+   *
+   * This method sets up request interception to monitor API calls and validates that:
+   * - A request is made to the collection endpoint when the header is clicked
+   * - The request includes the correct order parameter when sortCriteria is provided
+   * - The request excludes the order parameter when sortCriteria is falsy
+   *
+   * @param headerName - The visible text of the table header to click
+   * @param propertyName - The API property name that should appear in the order query parameter
+   * @param sortCriteria - The expected sort direction ('asc' or 'desc'), or falsy to verify no sorting
+   * @deprecated Use expectTableContentChangesAfterSortableHeaderClick instead due to @pinia/colada query cache
+   */
+  async expectGetRequestIsTriggeredWhenSortableHeaderIsClicked(
+    headerName: string,
+    propertyName: string,
+    sortCriteria?: 'asc' | 'desc',
+  ) {
+    // Create variables to track interception
+    let requestIntercepted = false
+    let orderPropertyFound = false
+
+    // Set up the route handler
+    await this.page.route(`**${this.url}**`, async (route) => {
+      const url = route.request().url()
+      if (url.includes(`order%5B${propertyName}%5D=${sortCriteria}`)) {
+        orderPropertyFound = true
+      }
+      requestIntercepted = true
+      await route.continue()
+    })
+
+    // Click the header to trigger sorting
+    await this.dataCollectionTable
+      .getByRole('cell', { name: headerName, exact: false })
+      .click()
+
+    // Wait for the request to be made
+    await this.page.waitForResponse(`**${this.url}**`)
+
+    expect(requestIntercepted).toBeTruthy()
+    // When sort criteria is falsy url shouldn't include the property in the query
+    expect(orderPropertyFound).toBe(Boolean(sortCriteria))
+  }
+  
+  /**
+   * Verifies that clicking a sortable table header changes the table content.
+   * 
+   * This method captures the current table content, clicks the header,
+   * and then verifies that the table content has changed.
+   * 
+   * Note: This method doesn't verify if the order is correct since sorting is done server-side.
+   * It only checks that the table's content has changed after clicking the header.
+   * 
+   * @param headerName - The visible text of the table header to click
+   */
+  async expectTableContentChangesAfterSortableHeaderClick(
+    headerName: string,
+  ) {
+    // Get all table rows before clicking the header
+    const beforeContent = await this.dataCollectionTable.getByRole('row').allTextContents();
+    
+    // Click the header to trigger sorting
+    await this.dataCollectionTable
+      .getByRole('cell', { name: headerName, exact: false })
+      .click();
+      
+    // Wait for the table to update
+    await this.page.waitForTimeout(500);
+    
+    // Get all table rows after clicking the header
+    const afterContent = await this.dataCollectionTable.getByRole('row').allTextContents();
+    
+    // Check if the content has changed
+    // We're comparing the stringified versions to detect any changes in order
+    expect(JSON.stringify(beforeContent)).not.toEqual(JSON.stringify(afterContent));
+  }
 }
