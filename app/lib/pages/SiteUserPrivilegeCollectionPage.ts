@@ -5,7 +5,7 @@ import { expect } from '@playwright/test'
 export class SiteUserPrivilegeCollectionPage extends BaseCollectionPage {
   public readonly resourceLabel = 'Site/User Privileges'
   protected readonly path = '**only child**'
-  protected readonly url = '/api/site_user_privileges'
+  protected readonly url = '/api/admin/site_user_privileges'
 
   public readonly privilegesDialog = new DataDialogSiteUserPrivilege(this)
 
@@ -19,6 +19,8 @@ export class SiteUserPrivilegeCollectionPage extends BaseCollectionPage {
   ) {
     const locator = this.getRowAuthUserButton(nthOrText)
     await locator.hover()
-    await expect(this.page.getByRole('tooltip', { name: privilege })).toBeVisible()
+    await expect(
+      this.page.getByRole('tooltip', { name: privilege }),
+    ).toBeVisible()
   }
 }

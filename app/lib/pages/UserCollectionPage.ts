@@ -5,7 +5,7 @@ import { UserItemPage } from '@lib/pages/UserItemPage'
 export class UserCollectionPage extends BaseCollectionPage {
   public readonly resourceLabel = 'Users'
   protected readonly path = '/admin/users'
-  protected readonly url = '/api/users'
+  protected readonly url = '/api/admin/users'
 
   public readonly userPasswordDialog = new DataDialogUserPassword(this)
 

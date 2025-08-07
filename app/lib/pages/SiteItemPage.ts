@@ -3,7 +3,7 @@ import { BaseItemPage } from '@lib/pages/BaseItemPage'
 export class SiteItemPage extends BaseItemPage {
   public readonly resourceLabel = 'Site'
   protected readonly path = '/data/sites/{id}'
-  protected readonly url = '/api/sites'
+  protected readonly url = '/api/data/sites'
   public readonly dataToolbarActionMenuButton = this.page.getByTestId(
     'data-toolbar-item-action-menu-button',
   )
